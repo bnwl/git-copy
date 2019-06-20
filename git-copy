@@ -1,0 +1,87 @@
+#!/bin/bash
+
+set -e
+
+while getopts ":i:o:n:" options; do
+  case "${options}" in
+    i)
+      old_ifs="${IFS}"
+      IFS='#'
+      from_args=(${OPTARG})
+      from_repo="${from_args[0]}"
+      from_branch="${from_args[1]}"
+      IFS="${old_ifs}"
+      ;;
+    o)
+      old_ifs="${IFS}"
+      IFS='#'
+      to_args=(${OPTARG})
+      to_repo="${to_args[0]}"
+      to_branch="${to_args[1]}"
+      IFS="${old_ifs}"
+      ;;
+    n)
+      old_ifs="${IFS}"
+      IFS=','
+      names=(${OPTARG})
+      IFS="${old_ifs}"
+      ;;
+    :)
+      ;;
+    *)
+      ;;
+  esac
+done
+
+names_pattern="("
+
+let "last_element_index = ${#names[@]} - 1"
+
+for i in "${!names[@]}"; do
+  
+  name=$(printf %q "${names[i]}")
+  names_pattern="${names_pattern}^${name}\$"
+  
+  if [ $i -lt ${last_element_index} ]; then
+    names_pattern="${names_pattern}|"
+  fi
+
+done
+
+names_pattern="${names_pattern})"
+
+from_repo_name=$(echo "${from_repo}" | grep -oP "[^/]+(?=\.git)")
+to_repo_name=$(echo "${to_repo}" | grep -oP "[^/]+(?=\.git)")
+
+git clone -n ${from_repo} ${from_repo_name}
+git clone -n ${to_repo} ${to_repo_name}
+
+pushd ${from_repo_name}
+git checkout ${from_branch}
+git remote rm origin
+
+threads=$(cat /proc/cpuinfo | grep 'siblings' | grep -o '[0-9]*' | head -n1)
+git filter-branch --prune-empty --index-filter \
+  "git ls-tree --name-only \$GIT_COMMIT \
+    | grep -Ev '${names_pattern}' \
+    | xargs -r -P${threads} -I{} bash -c 'printf \"%q \" \"{}\"' \
+    | xargs -r git rm -rqf" HEAD
+git filter-branch -f --prune-empty --parent-filter \
+  'sed "s/-p //g" | xargs -r git show-branch --independent | sed "s/\</-p /g"' HEAD
+
+popd
+pushd ${to_repo_name}
+
+git remote add ${from_repo_name} ../${from_repo_name}
+git checkout ${to_branch}
+git fetch --no-tags ${from_repo_name}
+git merge --no-edit ${from_repo_name}/${from_branch}
+git remote rm ${from_repo_name}
+
+popd
+
+rm -rf ${from_repo_name}
+
+echo "Finished merging directorires. Review the changes in ./${to_repo_name} and then
+push them if you are happy."
+
