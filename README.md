@@ -3,6 +3,9 @@ Copy a root directory or file from one git repository to another with full histo
 
 # Usage 
 ```
-git-copy -i <from-repo>#<branch> -o <to-repo>#<branch> -n <comma-separated-names>
+git-copy -i <repo>#<branch> -o <repo>#<branch> -n <names>
+  -i: input repository and branch
+  -o: output repository and branch
+  -n: comma separated list of directory of file names
 ```
  
