@@ -2,40 +2,25 @@
 
 set -e
 
-while getopts ":i:o:n:" options; do
-  case "${options}" in
-    i)
-      old_ifs="${IFS}"
-      IFS='#'
-      from_args=(${OPTARG})
-      from_repo="${from_args[0]}"
-      from_branch="${from_args[1]}"
-      IFS="${old_ifs}"
-      ;;
-    o)
-      old_ifs="${IFS}"
-      IFS='#'
-      to_args=(${OPTARG})
-      to_repo="${to_args[0]}"
-      to_branch="${to_args[1]}"
-      IFS="${old_ifs}"
-      ;;
-    n)
-      old_ifs="${IFS}"
-      IFS=','
-      names=(${OPTARG})
-      IFS="${old_ifs}"
-      ;;
-    :)
-      ;;
-    *)
-      ;;
-  esac
-done
+old_ifs="${IFS}"
+IFS='#'
+from_args=($1)
+from_repo="${from_args[0]}"
+from_branch="${from_args[1]}"
+IFS="${old_ifs}"
 
+old_ifs="${IFS}"
+IFS='#'
+to_args=($2)
+to_repo="${to_args[0]}"
+to_branch="${to_args[1]}"
+IFS="${old_ifs}"
+
+shift 2
+names=($@)
 names_pattern="("
 
-let "last_element_index = ${#names[@]} - 1"
+last_element_index=$((${#names[@]} - 1))
 
 for i in "${!names[@]}"; do
   
