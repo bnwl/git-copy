@@ -56,8 +56,13 @@ git filter-branch -f --prune-empty --parent-filter \
 popd
 pushd ${to_repo_name}
 
+if ! git branch | grep -P "(?<= )${to_branch}\$"; then
+  git checkout -b ${to_branch}
+else
+  git checkout ${to_branch}
+fi
+
 git remote add ${from_repo_name} ../${from_repo_name}
-git checkout ${to_branch}
 git fetch --no-tags ${from_repo_name}
 git merge --no-edit ${from_repo_name}/${from_branch}
 git remote rm ${from_repo_name}
