@@ -60,14 +60,13 @@ pushd ${from_repo_name}
 git checkout ${from_branch}
 git remote rm origin
 
-threads=$(cat /proc/cpuinfo | grep 'siblings' | grep -o '[0-9]*' | head -n1)
 git filter-branch --prune-empty --index-filter \
   "git ls-tree --name-only \$GIT_COMMIT \
     | grep -Ev '${names_pattern}' \
-    | xargs -r -P${threads} -I{} bash -c 'printf \"%q \" \"{}\"' \
+    | xargs -r -P0 -I{} bash -c 'printf \"%q \" \"{}\"' \
     | xargs -r git rm -rqf" HEAD
 git filter-branch -f --prune-empty --parent-filter \
-  'sed "s/-p //g" | xargs -r git show-branch --independent | sed "s/\</-p /g"' HEAD
+  'sed "s/-p //g" | xargs -r -P0 git show-branch --independent | sed "s/\</-p /g"' HEAD
 
 popd
 pushd ${to_repo_name}
