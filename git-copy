@@ -71,6 +71,6 @@ popd
 
 rm -rf ${from_repo_name}
 
-echo "Finished merging directorires. Review the changes in ./${to_repo_name} and then
-push them if you are happy."
+echo "Finished merging directorires."
+echo "Review the changes in ./${to_repo_name} and then push them if you are happy."
 
