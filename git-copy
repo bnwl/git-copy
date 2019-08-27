@@ -34,8 +34,15 @@ done
 
 names_pattern="${names_pattern})"
 
+set +e
 from_repo_name=$(echo "${from_repo}" | grep -oP "[^/]+(?=\.git)")
 to_repo_name=$(echo "${to_repo}" | grep -oP "[^/]+(?=\.git)")
+set -e
+
+if [ -z "${from_repo_name}" ] || [ -z "${to_repo_name}" ]; then
+  echo "Couldn't parse repository name. Make sure your repository URLs end in \".git\"."
+  exit 1
+fi
 
 git clone -n ${from_repo} ${from_repo_name}
 git clone -n ${to_repo} ${to_repo_name}
