@@ -4,16 +4,15 @@ set -e
 
 old_ifs="${IFS}"
 IFS='#'
+
 from_args=($1)
 from_repo="${from_args[0]}"
 from_branch="${from_args[1]}"
-IFS="${old_ifs}"
 
-old_ifs="${IFS}"
-IFS='#'
 to_args=($2)
 to_repo="${to_args[0]}"
 to_branch="${to_args[1]}"
+
 IFS="${old_ifs}"
 
 shift 2
