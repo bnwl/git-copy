@@ -9,5 +9,5 @@ If the branch is not present in the destintation repository then it will be crea
 
 For example to copy the README from this repository you would do the following:
 ```
-git-copy https://github.com/bswilliamson/git-copy.git#master https://repo.test/user/git-copy-fork.git#master README.md
+git-copy https://github.com/bswilliamson/git-copy.git#master https://repo.test/user/project.git#master README.md
 ```
